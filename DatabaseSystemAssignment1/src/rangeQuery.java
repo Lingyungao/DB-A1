@@ -47,7 +47,7 @@ public class rangeQuery {
 //	[8-12]:recordID;
 //  [12-16]:name;
 //	[16-20]:birth data;
-//  [0-56]: head
+//  [0-60]: head
 	private static void fileSearch(int searchKey1, int searchKey2, String filePath) {
 		long startTime = System.currentTimeMillis();
 		BufferedReader br = null;

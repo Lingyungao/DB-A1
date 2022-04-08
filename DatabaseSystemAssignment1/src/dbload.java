@@ -92,8 +92,8 @@ public class dbload {
 			byte[] des;
 			// skip title
 			ln = br.readLine();
+			//read line and cut data
 			while ((ln = br.readLine()) != null) {
-				System.out.println("Reading record " + totalCounter + "try to fill in page " + pageCounter);
 				rowdata = ln.trim().split(",(?=([^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*$)", -1);
 
 				int size[] = new int[12];
@@ -105,13 +105,13 @@ public class dbload {
 				size[0] = pn.length;
 
 				String birthDate = rowdata[2];
+				//check and trans int data
 				if (birthDate != "") {
 					int birthDateToInt = Double.valueOf(rowdata[2]).intValue();
 					bd = intByteArrayMaker(birthDateToInt);
 				} else {
 					bd = birthDate.getBytes("utf-8");
 				}
-//				System.out.println(birthDate);
 
 				size[1] = bd.length;
 
@@ -158,66 +158,53 @@ public class dbload {
 				size[9] = wpID.length;
 
 				String description = rowdata[11];
-//				System.out.println("description writen into data as:" + description);
 				des = description.getBytes("utf-8");
 				size[10] = des.length;
 
 				// for # at end
 				size[11] = "#".length();
 				// init address start point include dataID and address record
-				address[0] = 60; // calculate address
+				address[0] = 60; 
+				// calculate address
 				for (int i = 1; i < size.length; i++) {
 					address[i] = address[i - 1] + size[i - 1];
-					System.out.print(i + ":" + address[i] + " |");
 				}
-				System.out.println("");
 				// total Size for one record = final position of record and 1 free space
-				String printer = "";
-				String printer2 = "";
 
 				for (int i = 0; i < size.length; i++) {
 					totalSize = totalSize + size[i];
-					printer = printer + (i + ":" + size[i] + " |");
-					printer2 = printer2 + (i + ":" + totalSize + " |");
 				}
 				totalSize = totalSize+60;
-				System.out.println(printer);
-				System.out.println(printer2);
+
 								
 				
-				// check space
+				// check space if no enough then change page
 				if ((int) bb.limit() > totalSize) {
 					// fill in address and id to head of one record
 					fillInRecord(totalCounter, pageCounter, recordCounter, size, address, bb, pn, bd, bpl, dd, fl, gl,
 							il, nl, thu, wpID, des, nextRecordStartPoint, totalSize);					
 					System.out.println("record " + totalCounter + ", size:" + totalSize + " fill into page "
 							+ pageCounter + " as " + recordCounter + " on page");
-					System.out.println("remaining space on page is " + bb.remaining());
 					System.out.println("");
 					totalCounter++;
 					recordCounter++;
 					rollbackRecord = totalSize-nextRecordStartPoint;
-					nextRecordStartPoint = totalSize;
-					System.out.println(bb);
-					
+					nextRecordStartPoint = totalSize;					
 				} else {
 					System.out.println("no enough space on page");
-					System.out.println("Size of page is:" + bb.array().length);
+					System.out.println("remaining space on page is " + bb.remaining());
+					System.out.println(bb);
 					for(int i = bb.position();i<bb.limit(); i++) {
 						bb.put("#".getBytes());
 					}
 					dos.write(bb.array());
-					System.out.println(bb);
 					bb.clear();
-					System.out.println(bb);
 					pageCounter++;
 					recordCounter = 0;
 					nextRecordStartPoint =0;
 					totalSize = 0;
 					for (int i = 0; i < size.length; i++) {
 						totalSize = totalSize + size[i];
-						printer = printer + (i + ":" + size[i] + " |");
-						printer2 = printer2 + (i + ":" + totalSize + " |");
 					}
 					totalSize = totalSize+ 60;
 					fillInRecord(totalCounter, pageCounter, recordCounter, size, address, bb, pn, bd, bpl, dd, fl, gl,
@@ -227,15 +214,12 @@ public class dbload {
 					totalCounter++;
 				}
 			}
+			//get final page even space enough
 			System.out.println("final page");
 			totalCounter--;
 			recordCounter--;
 			System.out.println(recordCounter + " records write into file on page " + pageCounter);
 			System.out.println("total writed: " + totalCounter + " records");
-			System.out.println("Size of page is:" + bb.array().length);
-			for(int i = bb.position();i<bb.limit(); i++) {
-				bb.put("#".getBytes());
-			}
 			dos.write(bb.array());
 			dos.close();
 			long endTime = System.currentTimeMillis();
@@ -274,12 +258,6 @@ public class dbload {
 		bb.put(des);
 		// free spaceb
 		bb.put("#".getBytes());
-		System.out.println("start point" + nextRecordStartPoint);
-		System.out.println("totalSize" + totalSize);
-		String str = new String(getBytes(bb, (totalSize-1), 1));
-		System.out.println("# now:" + str);
-		fullDataCheck(bb,nextRecordStartPoint);
-
 	}
 
 	public void pageMaker(byte[] page, byte[] row, int PAGE_OFFSET) {
@@ -295,19 +273,7 @@ public class dbload {
 		return true;
 	}
 
-	public static String intBinaryMaker(String str) {
-		char[] byteData = str.toCharArray();
-		String result = "";
-		for (int i = 0; i < byteData.length; i++) {
-			// remove " " later
-			String temp = "000" + Integer.toBinaryString(Character.getNumericValue(byteData[i])) + " ";
-			if (temp.length() >= 5) {
-				temp = temp.substring(temp.length() - 5, temp.length());
-			}
-			result += temp;
-		}
-		return result;
-	}
+
 
 	public static byte[] intByteArrayMaker(int a) {
 		return new byte[] { (byte) ((a >> 24) & 0xFF), (byte) ((a >> 16) & 0xFF), (byte) ((a >> 8) & 0xFF),
