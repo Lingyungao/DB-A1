@@ -7,24 +7,24 @@ public class sizeCheck {
 	{
 	    ByteBuffer bb = ByteBuffer.allocate(500);
 	    
-	    bb.put(intByteArrayMaker(99999));
+	    bb.put(intByteArrayMaker(19731003));
 	    System.out.println(bb.position());
 
 	    int[] size = {1,15,56,88,40,25,23,12,12,52};
 	    int[] address = new int[10];
 	    
 		address[0] = 44 + size[0];
-		for(int i=1;i<size.length;i++) {
-			address[i] = address[i-1]+size[i];
-		}
-		for(int i=0;i<address.length;i++) {
-			bb.put(intByteArrayMaker(address[i]));
-		    System.out.println(bb.position());
-		}
+//		for(int i=1;i<size.length;i++) {
+//			address[i] = address[i-1]+size[i];
+//		}
+//		for(int i=0;i<address.length;i++) {
+//			bb.put(intByteArrayMaker(address[i]));
+//		    System.out.println(bb.position());
+//		}
 	    printBufferInfo(bb);
 	    System.out.println(bb.remaining());
 
-	    bb.put((" ").getBytes("UTF-8"));
+//	    bb.put((" ").getBytes("UTF-8"));
 	    System.out.println(bb.remaining());
 	    
 		
@@ -38,11 +38,14 @@ public class sizeCheck {
 //	    System.out.println(ee);
 	    byte[] ff = new byte[4];
 	    for (int i = 0; i < 4; i++) {
-	    		ff[i]=bb.get(i+4);
+	    		ff[i]=bb.get(i);
+	    		System.out.println(ff[i]);
 		    }
 	    System.out.println(ff);
 	    System.out.println(byteArrayToInt(ff));
 	    System.out.println(bb.remaining());
+	    
+	    System.out.println("#".getBytes().length);
 
 	    
 	}
