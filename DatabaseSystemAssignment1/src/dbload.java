@@ -203,6 +203,9 @@ public class dbload {
 				} else {
 					System.out.println("no enough space on page");
 					System.out.println("Size of page is:" + bb.array().length);
+					for(int i = bb.position();i<bb.limit(); i++) {
+						bb.put("#".getBytes());
+					}
 					dos.write(bb.array());
 					System.out.println(bb);
 					bb.clear();
@@ -230,6 +233,9 @@ public class dbload {
 			System.out.println(recordCounter + " records write into file on page " + pageCounter);
 			System.out.println("total writed: " + totalCounter + " records");
 			System.out.println("Size of page is:" + bb.array().length);
+			for(int i = bb.position();i<bb.limit(); i++) {
+				bb.put("#".getBytes());
+			}
 			dos.write(bb.array());
 			dos.close();
 			long endTime = System.currentTimeMillis();
@@ -349,8 +355,8 @@ public class dbload {
 		return str;
 	}
 
-	public static String getStringByStartPoint(ByteBuffer bb,int Location, int start) {
-		int startLocation = Location+start;
+	public static String getStringByStartPoint(ByteBuffer bb,int address, int start) {
+		int startLocation = address+start;
 		int endLocation = startLocation + 4;
 		int startInData = makeFourBytesToInt(bb, startLocation);
 		int endInData = makeFourBytesToInt(bb, endLocation);
